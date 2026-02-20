@@ -36,11 +36,13 @@ description: >
 
 - **Numbered Overlay**: `data-sd-id` 속성이 있는 DOM 요소에 번호 뱃지 + 보더 하이라이트 자동 표시
 - **Right Panel (480px)**: 4탭 상세보기 (기능/정책, 컴포넌트, 인터랙션, 데이터) + 인라인 편집
-- **Sub-Items (N-1, N-2)**: 각 섹션 내부 컴포넌트별 기능/정책 상세 정의
+- **Sub-Items (N-1, N-2)**: 각 섹션 내부 컴포넌트별 기능/정책 상세 정의 + **순서 조정(위/아래 이동)**
 - **Select-from-Screen**: 프로토타입에서 직접 클릭하여 서브아이템 추가
 - **History + Undo**: 모든 수정/삭제 히스토리 자동 기록, 되돌리기 지원
 - **Export**: Markdown / JSON / GitHub Issue 내보내기
 - **Persistence**: Next.js는 JSON 파일 + API Route, 순수 HTML은 localStorage
+- **Persistent Deletion**: 삭제된 서브아이템 ID 추적 (`deletedSubItemIds`) — 마이그레이션 시 복원 방지
+- **Stale Selector Migration**: 존재하지 않는 CSS 셀렉터 자동 감지 및 빈 문자열로 초기화
 
 ## Execution
 
@@ -76,6 +78,9 @@ To build the overlay system, invoke `/screen-definition`. The build process:
 - Pin mode uses `width: calc(100vw - 480px)` (not margin-right)
 - Capture-phase click handler for select-from-screen mode
 - `white-space: pre-line` for newline rendering in panel text
+- **deletedSubItemIds**: 서브아이템 삭제 시 ID를 `deletedSubItemIds` 객체에 기록하여, loadState 마이그레이션에서 DEFAULTS 서브아이템이 재삽입되지 않도록 방지. `deletedSubItemIds`는 반드시 마이그레이션 루프 **이전에** localStorage에서 로드해야 함
+- **서브아이템 순서 조정**: 위/아래 화살표 버튼으로 서브아이템 순서 변경 가능. 첫 번째/마지막 항목은 해당 방향 버튼 비활성화
+- **Stale 셀렉터 마이그레이션**: loadState 시 `selector` 필드가 있는 서브아이템의 CSS 셀렉터가 DOM에 존재하지 않으면 빈 문자열로 자동 초기화 (뱃지 표시 오류 방지)
 
 ## Additional Resources
 

@@ -53,12 +53,16 @@ interface HistoryEntry {
 
 ### 순수 HTML/JS 프로젝트
 - **localStorage** key `sd-state`로 영속 저장
+- 저장 데이터 구조: `{ sections, history, deletedSubItemIds }`
 - 수정/삭제/Undo 시 500ms 디바운스 후 저장
+- **loadState 순서 중요**: `deletedSubItemIds`는 반드시 마이그레이션 루프 **이전에** 로드해야 함 (그렇지 않으면 삭제된 서브아이템이 마이그레이션에서 재삽입됨)
+- **Stale 셀렉터 마이그레이션**: loadState 시 서브아이템의 CSS 셀렉터가 DOM에 존재하지 않으면 빈 문자열로 자동 초기화 (뱃지 표시 오류 방지)
 
 ## 3. 전역 상태 관리
 - `isPlannerMode`, `isPanelOpen`, `selectedSectionId` — UI 상태
 - `sections` — 수정 가능한 섹션 데이터
 - `history` — 수정/삭제 히스토리 배열
+- `deletedSubItemIds` — 의도적으로 삭제된 서브아이템 ID 추적 `{ sectionId: [subItemId, ...] }`
 - `_editData` — 편집 중 임시 데이터 (탭 전환 시 보존)
 - `_editSubId` — 서브아이템 편집 상태 (null | 'new' | subItemId)
 - `_selectMode` — 화면 컴포넌트 선택 모드 활성 여부
@@ -67,7 +71,7 @@ interface HistoryEntry {
 - `_selectedCompSelector` — 선택된 컴포넌트 CSS 셀렉터 (서브아이템 셀렉터 프리필)
 - `updateSection(id, updates)` — 섹션 수정 (히스토리 자동 기록 + 자동 저장)
 - `deleteSection(id)` — 섹션 삭제 (히스토리 자동 기록 + 자동 저장)
-- `undoHistory(historyId)` — 특정 히스토리 항목 되돌리기
+- `undoHistory(historyId)` — 특정 히스토리 항목 되돌리기 (deletedSubItemIds에서도 해당 ID 제거)
 
 ## 4. 우측 패널 (480px)
 - **핀 모드**: 패널 고정 → 본문 width 자동 조정 `calc(100vw - 480px)`
@@ -138,7 +142,8 @@ interface HistoryEntry {
 ### CRUD
 - **추가**: 기능/정책 탭 하단 "서브 아이템 추가" 버튼
 - **편집**: 각 서브아이템의 연필 아이콘 → 인라인 편집 폼
-- **삭제**: 각 서브아이템의 휴지통 아이콘 → 즉시 삭제 (히스토리에 기록)
+- **삭제**: 각 서브아이템의 휴지통 아이콘 → 즉시 삭제 (히스토리에 기록, `deletedSubItemIds`에 ID 추가하여 마이그레이션 복원 방지)
+- **순서 조정**: 각 서브아이템의 위/아래 화살표(▲▼) 버튼 → 배열 위치 교환 (swap) + updateSection으로 영속화. 첫 번째 항목은 위 버튼 비활성화, 마지막 항목은 아래 버튼 비활성화
 - **내보내기**: Markdown/JSON/GitHub Issue에 서브아이템 포함
 
 ## 8. 화면에서 컴포넌트 선택 (Select-from-Screen)
