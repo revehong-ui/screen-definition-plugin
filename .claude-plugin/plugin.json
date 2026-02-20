@@ -1,0 +1,17 @@
+{
+  "name": "screen-definition",
+  "version": "1.0.0",
+  "description": "프로토타입 화면 위에 화면정의서(Screen Definition) 오버레이를 자동 구축하는 도구. 기획자가 각 컴포넌트의 기능 명세, 정책, 인터랙션, 데이터 요구사항을 프로토타입에서 바로 확인하고 수정/공유할 수 있습니다.",
+  "author": {
+    "name": "Vaiv"
+  },
+  "license": "MIT",
+  "keywords": [
+    "screen-definition",
+    "planning",
+    "prototype",
+    "overlay",
+    "wireframe",
+    "specification"
+  ]
+}
